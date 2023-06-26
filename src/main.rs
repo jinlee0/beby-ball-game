@@ -1,31 +1,21 @@
-mod global;
-mod consts;
+use {
+    crate::global::GlobalPlugin, bevy::prelude::*, enemy::EnemyPlugin, player::PlayerPlugin,
+    score::ScorePlugin, star::StarPlugin,
+};
+
 mod enemy;
-mod events;
+mod global;
 mod player;
 mod score;
 mod star;
-mod systems;
-
-use enemy::EnemyPlugin;
-use events::*;
-use player::PlayerPlugin;
-use score::ScorePlugin;
-use star::StarPlugin;
-use systems::*;
-
-use bevy::prelude::*;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(GlobalPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(StarPlugin)
         .add_plugin(ScorePlugin)
-        .add_event::<GameOver>()
-        .add_startup_system(spawn_camera)
-        .add_system(exit_game)
-        .add_system(handle_game_over)
         .run();
 }

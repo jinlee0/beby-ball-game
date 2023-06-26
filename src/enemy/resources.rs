@@ -1,6 +1,4 @@
-use bevy::prelude::*;
-
-use crate::consts::ENEMY_SPAWN_TIME;
+use {crate::global::consts::ENEMY_SPAWN_TIME, bevy::prelude::*};
 
 pub struct EnemyResourcePlugin;
 

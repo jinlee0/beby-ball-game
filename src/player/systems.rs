@@ -1,8 +1,12 @@
-use bevy::{prelude::*, window::PrimaryWindow};
-
-use super::components::*;
-use crate::{
-    consts::*, enemy::components::Enemy, events::GameOver, score::resources::*, star::components::*,
+use {
+    super::components::*,
+    crate::{
+        enemy::components::Enemy,
+        global::{consts::*, events::GameOver},
+        score::resources::*,
+        star::components::*,
+    },
+    bevy::{prelude::*, window::PrimaryWindow},
 };
 
 pub struct PlayerSystemPlugin;
@@ -121,7 +125,7 @@ pub fn enemy_hit_player(
                 let sound = asset_server.load("audio/explosionCrunch_000.ogg");
                 audio.play(sound);
                 commands.entity(player_entity).despawn();
-                game_over_event_writer.send(GameOver { score: score.value });
+                game_over_event_writer.send(GameOver { score: score.val });
             }
         }
     }
@@ -142,7 +146,7 @@ pub fn player_hit_star(
                 .distance(star_transform.translation);
 
             if distance < PLAYER_SIZE / 2.0 + STAR_SIZE / 2.0 {
-                score.value += 1;
+                score.val += 1;
                 let sound = asset_server.load("audio/laserLarge_000.ogg");
                 audio.play(sound);
                 commands.entity(star_entity).despawn();

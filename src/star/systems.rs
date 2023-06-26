@@ -1,8 +1,10 @@
-use super::components::*;
-use super::resources::*;
-use crate::consts::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::*;
+
+use crate::global::consts::*;
+
+use super::components::*;
+use super::resources::*;
 
 pub struct StarSystemPlugin;
 

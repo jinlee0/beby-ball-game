@@ -1,6 +1,7 @@
-use bevy::prelude::Plugin;
-
-use self::{resources::ScoreResourcePlugin, systems::ScoreSystemPlugin};
+use {
+    self::{resources::ScoreResourcePlugin, systems::ScoreSystemPlugin},
+    bevy::prelude::Plugin,
+};
 
 pub mod resources;
 mod systems;

@@ -1,7 +1,5 @@
-use crate::events::GameOver;
+use {super::resources::*, crate::global::events::GameOver, bevy::prelude::*};
 
-use super::resources::*;
-use bevy::prelude::*;
 pub struct ScoreSystemPlugin;
 
 impl Plugin for ScoreSystemPlugin {
@@ -29,6 +27,6 @@ pub fn high_scores_updated(high_scores: Res<HighScores>) {
 
 pub fn update_score(score: Res<Score>) {
     if score.is_changed() {
-        println!("Score: {}", score.value);
+        println!("Score: {}", score.val);
     }
 }

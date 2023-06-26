@@ -1,6 +1,7 @@
-use bevy::prelude::*;
-
-use self::{resources::EnemyResourcePlugin, systems::EnemySystemPlugin};
+use {
+    self::{resources::EnemyResourcePlugin, systems::EnemySystemPlugin},
+    bevy::prelude::*,
+};
 
 pub mod components;
 pub mod resources;

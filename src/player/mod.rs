@@ -1,5 +1,4 @@
-use self::systems::PlayerSystemPlugin;
-use bevy::prelude::*;
+use {self::systems::PlayerSystemPlugin, bevy::prelude::*};
 
 pub mod components;
 mod systems;

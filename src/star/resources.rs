@@ -1,5 +1,6 @@
-use crate::consts::*;
 use bevy::prelude::*;
+
+use crate::global::consts::*;
 
 pub struct StarResourcePlugin;
 

@@ -10,7 +10,7 @@ impl Plugin for ScoreResourcePlugin {
 
 #[derive(Resource, Default)]
 pub struct Score {
-    pub value: u32,
+    pub val: u32,
 }
 
 #[derive(Resource, Debug, Default)]
