@@ -136,7 +136,7 @@ pub fn confine_player_movement(
         let half_player_size = PLAYER_SIZE / 2.0;
         let x_min = 0.0 + half_player_size;
         let x_max = window.width() - half_player_size;
-        let y_min = x_min.clone();
+        let y_min = x_min;
         let y_max = window.height() - half_player_size;
 
         player_transform.translation = {
@@ -336,7 +336,7 @@ pub fn exit_game(
 
 pub fn handle_game_over(mut game_over_event_reader: EventReader<GameOver>) {
     for event in game_over_event_reader.iter() {
-        println!("Your final score is: {}", event.score.to_string());
+        println!("Your final score is: {}", event.score);
     }
 }
 

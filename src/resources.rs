@@ -3,26 +3,14 @@ use bevy::prelude::*;
 pub const STAR_SPAWN_TIME: f32 = 1.0;
 pub const ENEMY_SPAWN_TIME: f32 = 5.0;
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct Score {
     pub value: u32,
 }
 
-#[derive(Resource, Debug)]
+#[derive(Resource, Debug, Default)]
 pub struct HighScores {
     pub scores: Vec<(String, u32)>,
-}
-
-impl Default for HighScores {
-    fn default() -> Self {
-        HighScores { scores: Vec::new() }
-    }
-}
-
-impl Default for Score {
-    fn default() -> Self {
-        Score { value: 0 }
-    }
 }
 
 #[derive(Resource)]
