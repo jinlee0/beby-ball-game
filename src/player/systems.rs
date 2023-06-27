@@ -46,7 +46,7 @@ fn player_movement(
     if let Ok(mut transform) = player_query.get_single_mut() {
         let mut direction = Vec3::ZERO;
 
-        macro_rules! hadle_key_input {
+        macro_rules! handle_key_input {
             ($st: expr, $($code: expr),*) => {
                 for con in [$($code),*] {
                     if keyboard_input.pressed(con) {
@@ -57,22 +57,22 @@ fn player_movement(
             };
         }
 
-        hadle_key_input!(
+        handle_key_input!(
             || direction += Vec3::new(-1.0, 0.0, 0.0),
             KeyCode::Left,
             KeyCode::A
         );
-        hadle_key_input!(
+        handle_key_input!(
             || direction += Vec3::new(1.0, 0.0, 0.0),
             KeyCode::Right,
             KeyCode::D
         );
-        hadle_key_input!(
+        handle_key_input!(
             || direction += Vec3::new(0.0, 1.0, 0.0),
             KeyCode::Up,
             KeyCode::W
         );
-        hadle_key_input!(
+        handle_key_input!(
             || direction += Vec3::new(0.0, -1.0, 0.0),
             KeyCode::Down,
             KeyCode::S
