@@ -1,14 +1,6 @@
 use bevy::prelude::*;
 
-use crate::global::consts::*;
-
-pub struct StarResourcePlugin;
-
-impl Plugin for StarResourcePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<StarSpawnTimer>();
-    }
-}
+use crate::global::consts::STAR_SPAWN_TIME;
 
 #[derive(Resource)]
 pub struct StarSpawnTimer {

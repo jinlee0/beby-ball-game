@@ -1,6 +1,6 @@
 use bevy::prelude::Plugin;
 
-use self::{resources::StarResourcePlugin, systems::StarSystemPlugin};
+use self::systems::StarSystemPlugin;
 
 pub mod components;
 pub mod resources;
@@ -10,7 +10,6 @@ pub struct StarPlugin;
 
 impl Plugin for StarPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugin(StarResourcePlugin)
-            .add_plugin(StarSystemPlugin);
+        app.add_plugin(StarSystemPlugin);
     }
 }

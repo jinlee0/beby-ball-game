@@ -1,8 +1,7 @@
-use {
-    crate::global::{events::GlobalEventRegistrationPlugin, systems::GlobalSystemPlugin},
-    bevy::app::App,
-    bevy::prelude::Plugin,
-};
+use {bevy::app::App, bevy::prelude::Plugin};
+
+use crate::global::events::GlobalEventRegistrationPlugin;
+use crate::global::systems::GlobalSystemPlugin;
 
 pub mod consts;
 pub mod events;

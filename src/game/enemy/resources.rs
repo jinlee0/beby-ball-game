@@ -1,12 +1,6 @@
-use {crate::global::consts::ENEMY_SPAWN_TIME, bevy::prelude::*};
+use bevy::prelude::*;
 
-pub struct EnemyResourcePlugin;
-
-impl Plugin for EnemyResourcePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<EnemySpawnTimer>();
-    }
-}
+use crate::global::consts::ENEMY_SPAWN_TIME;
 
 #[derive(Resource)]
 pub struct EnemySpawnTimer {

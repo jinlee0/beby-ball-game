@@ -1,21 +1,27 @@
-use {
-    crate::global::GlobalPlugin, bevy::prelude::*, enemy::EnemyPlugin, player::PlayerPlugin,
-    score::ScorePlugin, star::StarPlugin,
-};
+use bevy::prelude::*;
+use global::GlobalPlugin;
 
-mod enemy;
+use crate::game::GamePlugin;
+use crate::main_menu::MainMenuPlugin;
+
+mod game;
 mod global;
-mod player;
-mod score;
-mod star;
+mod main_menu;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_state::<AppState>()
         .add_plugin(GlobalPlugin)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(EnemyPlugin)
-        .add_plugin(StarPlugin)
-        .add_plugin(ScorePlugin)
+        .add_plugin(MainMenuPlugin)
+        .add_plugin(GamePlugin)
         .run();
+}
+
+#[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
+pub enum AppState {
+    #[default]
+    MainMenu,
+    Game,
+    GameOver,
 }

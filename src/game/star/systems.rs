@@ -1,7 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::*;
 
-use crate::global::consts::*;
+use crate::game::SimulationState;
+use crate::global::consts::NUMBER_OF_STARS;
+use crate::AppState;
 
 use super::components::*;
 use super::resources::*;
@@ -10,9 +12,14 @@ pub struct StarSystemPlugin;
 
 impl Plugin for StarSystemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_stars)
-            .add_system(tick_star_spawn_timer)
-            .add_system(spawn_stars_over_time);
+        app.init_resource::<StarSpawnTimer>()
+            .add_system(spawn_stars.in_schedule(OnEnter(AppState::Game)))
+            .add_system(despawn_stars.in_schedule(OnExit(AppState::Game)))
+            .add_systems(
+                (tick_star_spawn_timer, spawn_stars_over_time)
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 
@@ -39,11 +46,15 @@ fn spawn_stars(
     }
 }
 
+fn despawn_stars(mut commands: Commands, star_entity_query: Query<Entity, With<Star>>) {
+    star_entity_query.for_each(|star_entity| commands.entity(star_entity).despawn());
+}
+
 fn tick_star_spawn_timer(mut star_spawn_timer: ResMut<StarSpawnTimer>, time: Res<Time>) {
     star_spawn_timer.timer.tick(time.delta());
 }
 
-pub fn spawn_stars_over_time(
+fn spawn_stars_over_time(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,

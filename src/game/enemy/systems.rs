@@ -1,17 +1,32 @@
-use super::{components::*, resources::*};
-use crate::global::consts::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::{seq::SliceRandom, *};
+
+use crate::{
+    game::{systems::MovementSystemSet, SimulationState},
+    global::consts::{ENEMY_SIZE, ENEMY_SPEED, NUMBER_OF_ENEMIES},
+    AppState,
+};
+
+use super::{components::*, resources::*};
 
 pub struct EnemySystemPlugin;
 
 impl Plugin for EnemySystemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_enemies)
-            .add_system(enemy_movement)
-            .add_system(confine_enemy_movement)
-            .add_system(tick_enemy_spawn_timer)
-            .add_system(spawn_enemies_over_time);
+        app.init_resource::<EnemySpawnTimer>()
+            .add_system(spawn_enemies.in_schedule(OnEnter(AppState::Game)))
+            .add_system(despawn_all_enemies.in_schedule(OnExit(AppState::Game)))
+            .add_systems(
+                (
+                    enemy_movement.in_set(MovementSystemSet::Movement),
+                    update_enemy_direction.in_set(MovementSystemSet::Update),
+                    confine_enemy_movement.in_set(MovementSystemSet::Confinement),
+                    tick_enemy_spawn_timer,
+                    spawn_enemies_over_time,
+                )
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 
@@ -38,22 +53,9 @@ fn spawn_enemies(
     }
 }
 
-fn enemy_movement(
-    mut enemy_query: Query<(&mut Transform, &mut Enemy)>,
-    time: Res<Time>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    audio: Res<Audio>,
-    asset_server: Res<AssetServer>,
-) {
+fn enemy_movement(mut enemy_query: Query<(&mut Transform, &mut Enemy)>, time: Res<Time>) {
     for (mut transform, mut enemy) in enemy_query.iter_mut() {
         move_enemy(&time, &mut transform, &mut enemy);
-        update_enemy_direction(
-            window_query.get_single().unwrap(),
-            &audio,
-            &asset_server,
-            &transform,
-            &mut enemy,
-        );
     }
 }
 
@@ -63,35 +65,37 @@ fn move_enemy(time: &Res<Time>, transform: &mut Mut<Transform>, enemy: &mut Mut<
 }
 
 fn update_enemy_direction(
-    window: &Window,
-    audio: &Res<Audio>,
-    asset_server: &Res<AssetServer>,
-    transform: &Transform,
-    enemy: &mut Mut<Enemy>,
+    window: Query<&Window, With<PrimaryWindow>>,
+    audio: Res<Audio>,
+    asset_server: Res<AssetServer>,
+    mut enemy_query: Query<(&Transform, &mut Enemy)>,
 ) {
+    let window = window.get_single().unwrap();
     let half_enemy_size = ENEMY_SIZE / 2.0;
     let x_min = 0.0 + half_enemy_size;
     let x_max = window.width() - half_enemy_size;
     let y_min = x_min;
     let y_max = window.height() - half_enemy_size;
-    let origin_direction = enemy.direction;
-    enemy.direction = {
-        let mut d = enemy.direction;
-        if transform.translation.x < x_min || transform.translation.x > x_max {
-            d.x *= -1.0;
-        }
-        if transform.translation.y < y_min || transform.translation.y > y_max {
-            d.y *= -1.0;
-        }
-        d
-    };
+    for (transform, mut enemy) in enemy_query.iter_mut() {
+        let origin_direction = enemy.direction;
+        enemy.direction = {
+            let mut d = enemy.direction;
+            if transform.translation.x < x_min || transform.translation.x > x_max {
+                d.x *= -1.0;
+            }
+            if transform.translation.y < y_min || transform.translation.y > y_max {
+                d.y *= -1.0;
+            }
+            d
+        };
 
-    if origin_direction != enemy.direction {
-        let sounds = vec![
-            asset_server.load("audio/pluck_001.ogg"),
-            asset_server.load("audio/pluck_002.ogg"),
-        ];
-        audio.play(sounds.choose(&mut thread_rng()).unwrap().to_owned());
+        if origin_direction != enemy.direction {
+            let sounds = vec![
+                asset_server.load("audio/pluck_001.ogg"),
+                asset_server.load("audio/pluck_002.ogg"),
+            ];
+            audio.play(sounds.choose(&mut thread_rng()).unwrap().to_owned());
+        }
     }
 }
 
@@ -142,5 +146,11 @@ fn spawn_enemies_over_time(
                 direction: Vec2::new(random::<f32>(), random::<f32>()).normalize(),
             },
         ));
+    }
+}
+
+fn despawn_all_enemies(mut commands: Commands, enemy_query: Query<Entity, With<Enemy>>) {
+    for enemy in enemy_query.iter() {
+        commands.entity(enemy).despawn();
     }
 }

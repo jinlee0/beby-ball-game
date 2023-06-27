@@ -1,30 +1,30 @@
 use {
     super::components::*,
-    crate::{
-        enemy::components::Enemy,
-        global::{consts::*, events::GameOver},
-        score::resources::*,
-        star::components::*,
-    },
     bevy::{prelude::*, window::PrimaryWindow},
 };
 
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-pub enum PlayerSystemSet {
-    Movement,
-    Confinement,
-}
+use crate::game::{enemy::components::Enemy, systems::MovementSystemSet};
+use crate::game::{star::components::Star, SimulationState};
+use crate::global::consts::{ENEMY_SIZE, PLAYER_SIZE, PLAYER_SPEED, STAR_SIZE};
+use crate::global::events::GameOver;
+use crate::{game::score::resources::Score, AppState};
 
 pub struct PlayerSystemPlugin;
 
 impl Plugin for PlayerSystemPlugin {
     fn build(&self, app: &mut App) {
-        app.configure_sets((PlayerSystemSet::Movement, PlayerSystemSet::Confinement).chain())
-            .add_startup_system(spawn_player)
-            .add_system(player_movement.in_set(PlayerSystemSet::Movement))
-            .add_system(confine_player_movement.in_set(PlayerSystemSet::Confinement))
-            .add_system(player_hit_star)
-            .add_system(enemy_hit_player);
+        app.add_system(spawn_player.in_schedule(OnEnter(AppState::Game)))
+            .add_system(despawn_player.in_schedule(OnExit(AppState::Game)))
+            .add_systems(
+                (
+                    player_movement.in_set(MovementSystemSet::Movement),
+                    confine_player_movement.in_set(MovementSystemSet::Confinement),
+                    player_hit_star,
+                    enemy_hit_player,
+                )
+                    .in_set(OnUpdate(AppState::Game))
+                    .in_set(OnUpdate(SimulationState::Running)),
+            );
     }
 }
 
@@ -45,6 +45,12 @@ fn spawn_player(
     ));
 }
 
+fn despawn_player(mut commands: Commands, player_entity_query: Query<Entity, With<Player>>) {
+    if let Ok(player_entity) = player_entity_query.get_single() {
+        commands.entity(player_entity).despawn();
+    }
+}
+
 fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
@@ -54,10 +60,10 @@ fn player_movement(
         let mut direction = Vec3::ZERO;
 
         macro_rules! handle_key_input {
-            ($st: expr, $($code: expr),*) => {
-                for con in [$($code),*] {
-                    if keyboard_input.pressed(con) {
-                        $st();
+            ($fun: expr, $($code: expr),*) => {
+                for c in [$($code),*] {
+                    if keyboard_input.pressed(c) {
+                        $fun();
                         break;
                     }
                 }
@@ -112,7 +118,7 @@ fn confine_player_movement(
     }
 }
 
-pub fn enemy_hit_player(
+fn enemy_hit_player(
     mut commands: Commands,
     mut game_over_event_writer: EventWriter<GameOver>,
     mut player_query: Query<(Entity, &Transform), With<Player>>,
@@ -138,7 +144,7 @@ pub fn enemy_hit_player(
     }
 }
 
-pub fn player_hit_star(
+fn player_hit_star(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     star_query: Query<(Entity, &Transform), With<Star>>,
