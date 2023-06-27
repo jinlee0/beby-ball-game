@@ -25,16 +25,16 @@ pub enum MovementSystemSet {
 }
 
 fn toggle_simulation(
-    mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     simulation_state: Res<State<SimulationState>>,
+    mut next_simulation_state: ResMut<NextState<SimulationState>>
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         let toggled = match simulation_state.0 {
             SimulationState::Running => SimulationState::Paused,
             SimulationState::Paused => SimulationState::Running,
         };
-        commands.insert_resource(NextState(Some(toggled.clone())));
+        next_simulation_state.set(toggled.clone());
         println!("Game {toggled:?}");
     }
 }
