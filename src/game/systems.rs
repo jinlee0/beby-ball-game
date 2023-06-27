@@ -13,7 +13,9 @@ impl Plugin for GameSystemPlugin {
             )
                 .chain(),
         )
-        .add_system(toggle_simulation.run_if(in_state(AppState::Game)));
+        .add_system(toggle_simulation.run_if(in_state(AppState::Game)))
+        .add_system(pause_simulation.in_schedule(OnEnter(AppState::Game)))
+        .add_system(resume_simulation.in_schedule(OnExit(AppState::Game)));
     }
 }
 
@@ -24,10 +26,18 @@ pub enum MovementSystemSet {
     Confinement,
 }
 
+fn pause_simulation(mut next_simulation_state: ResMut<NextState<SimulationState>>) {
+    next_simulation_state.set(SimulationState::Paused)
+}
+
+fn resume_simulation(mut next_simulation_state: ResMut<NextState<SimulationState>>) {
+    next_simulation_state.set(SimulationState::Running)
+}
+
 fn toggle_simulation(
     keyboard_input: Res<Input<KeyCode>>,
     simulation_state: Res<State<SimulationState>>,
-    mut next_simulation_state: ResMut<NextState<SimulationState>>
+    mut next_simulation_state: ResMut<NextState<SimulationState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         let toggled = match simulation_state.0 {
